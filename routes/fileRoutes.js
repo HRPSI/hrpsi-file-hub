@@ -51,7 +51,7 @@ const upload = multer({
     if (allowedMimes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Invalid file type. Only PDF, Excel, CSV, and Word are allowed.'));
+      cb('Invalid file type. Only PDF, Excel, CSV, and Word are allowed.');
     }
   }
 });
