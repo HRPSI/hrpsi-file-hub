@@ -1,0 +1,26 @@
+<!-- preview.ejs -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Preview <%= fileName %></title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+    .preview-container {
+      width: 100%;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <!-- For PDFs (and some browsers can display images) -->
+  <iframe 
+    class="preview-container"
+    src="<%= fileUrl %>" 
+    frameborder="0"
+  ></iframe>
+</body>
+</html>
