@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 
 // Hardcoded user info for demonstration.
 const DEMO_USER = {
-  email: 'admin@example.com',
+  email: 'admin@hrpsi.com',
   // Password: 'password123', hashed using bcrypt for demo
   passwordHash: '$2b$10$Zm9VMImBjjbN8IEUDrXdcOAIpl6tb5uyWk8THpEy9xHiNUpy9gW7C' 
 };

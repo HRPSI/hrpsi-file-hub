@@ -26,7 +26,25 @@ const upload = multer({
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'text/csv',
       'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/bmp',
+    'image/webp',
+    'application/zip',
+    'application/x-7z-compressed',
+    'application/x-rar-compressed',
+    'application/x-tar',
+    'application/x-gtar',
+    'application/x-bzip2',
+    'application/x-gzip',
+    'application/x-lzip',
+    'application/x-xz',
+    'application/x-compress',
+    'application/x-lzma',
+    'application/x-lzop',
+    'application/x-snappy-framed',
     ];
 
     if (allowedMimes.includes(file.mimetype)) {
