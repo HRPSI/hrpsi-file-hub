@@ -83,14 +83,14 @@ const upload = multer({
 });
 
 // GET: Dashboard
-router.get('/', ensureAuth, fileController.getDashboard);
+router.get('/', fileController.getDashboard);
 
 // POST: Upload file
 // For multiple uploads, rename 'file' to 'files' in the field name
-router.post('/upload', ensureAuth,upload.array('files', 5), fileController.uploadFiles);
-router.get('/download/:fileName', ensureAuth, fileController.downloadFile);
+router.post('/upload',upload.array('files', 5), fileController.uploadFiles);
+router.get('/download/:fileName', fileController.downloadFile);
 // New: Delete route
-router.get('/delete/:fileName',ensureAuth, fileController.deleteFile);
-router.get('/preview/:fileName', ensureAuth, fileController.previewFile);
+router.get('/delete/:fileName', fileController.deleteFile);
+router.get('/preview/:fileName', fileController.previewFile);
 
 module.exports = router;

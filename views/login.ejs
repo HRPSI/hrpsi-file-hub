@@ -16,7 +16,7 @@
                         <%= error %>
                     </div>
                 <% } %>
-                <form action="/login" method="POST">
+                <div>
                     <div class="mb-3">
                         <label for="email" class="form-label">Email:</label>
                         <input 
@@ -37,12 +37,86 @@
                             required
                         >
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">
+                    <div class="mb-3 form-check">
+                        <input 
+                            type="checkbox" 
+                            class="form-check-input" 
+                            id="showPassword"
+                            onclick="togglePasswordVisibility()"
+                        >
+                        <label class="form-check-label" for="showPassword">Show Password</label>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input 
+                            type="checkbox" 
+                            class="form-check-input" 
+                            id="rememberMe"
+                        >
+                        <label class="form-check-label" for="rememberMe">Remember me</label>
+                    </div>
+                    <button onclick="login()" class="btn btn-primary w-100">
                         Login
                     </button>
-                </form>
+                </div>
             </div>
         </div>
     </div>
+    <script>
+        function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+
+            if (rememberMe) {
+                localStorage.setItem('email', email);
+                localStorage.setItem('password', btoa(password)); // Encrypt password using Base64
+            } else {
+                localStorage.removeItem('email');
+                localStorage.removeItem('password');
+            }
+
+            fetch('https://api.hrpsi.com/api/v1/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password,
+                    deviceId: '1234',
+                    languageIsoCode: "en"
+                })
+            })
+            .then((response) => response.json())
+            .then(data => {
+                localStorage.setItem('user', JSON.stringify(data.data));
+                window.location.href = '/dashboard';
+            }).catch(error => {
+                console.error(error);
+            });
+
+            console.log('Form submitted with:', { email, rememberMe });
+        }
+
+        window.onload = function() {
+            const savedEmail = localStorage.getItem('email');
+            const savedPassword = localStorage.getItem('password');
+
+            if (savedEmail && savedPassword) {
+                document.getElementById('email').value = savedEmail;
+                document.getElementById('password').value = atob(savedPassword); // Decrypt password using Base64
+                document.getElementById('rememberMe').checked = true;
+            }
+        }
+
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+            } else {
+                passwordInput.type = 'password';
+            }
+        }
+    </script>
 </body>
 </html>

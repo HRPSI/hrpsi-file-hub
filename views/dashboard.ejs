@@ -8,12 +8,11 @@
 <body>
     <div class="navbar">
         <div class="left">
-            <h6>Welcome, <%= user.email %></h6>
+            <h6></h6>
         </div>
 <!-- Wrap in a d-flex to align items horizontally; use spacing with ms-3 or me-3 as needed. -->
 <div class="d-flex align-items-center">
-
-    <a href="/logout" class="btn btn-danger">Logout</a>
+    <a href="#" id="logoutButton" class="btn btn-danger">Logout</a>
 </div>
 
     </div>
@@ -47,19 +46,19 @@
   </button>
             </div>
         </form>
-        <form action="/files/upload" method="POST" enctype="multipart/form-data" id="uploadForm" class="me-3">
+        <div class="me-3">
             <label for="file-upload" class="btn btn-success mb-0">
                 Upload
             </label>
             <input 
                 id="file-upload" 
                 type="file" 
-                 name="files" multiple
+                name="files" 
+                multiple
                 class="d-none" 
-                               
-                onchange="document.getElementById('uploadForm').submit()"
+                onchange="uploadFiles()"
             />
-        </form>
+        </div>
     </div>
     
     <div id="dropZone" class="table-drop-zone table-responsive">
@@ -133,13 +132,52 @@
         document.getElementById('loaderOverlay').style.display = 'none';
       });
 
-      // If you have the upload form: show loader when file is selected & submitted
-      const uploadForm = document.getElementById('uploadForm');
-      if (uploadForm) {
-        uploadForm.addEventListener('submit', function() {
-          document.getElementById('loaderOverlay').style.display = 'flex';
+      // Handle file upload
+      function uploadFiles() {
+        const fileInput = document.getElementById('file-upload');
+        const files = fileInput.files;
+        const formData = new FormData();
+
+            formData.append('file', files[0]);
+        
+
+
+        // Show loader
+        document.getElementById('loaderOverlay').style.display = 'flex';
+
+        const currentUser = localStorage.getItem('user');
+        let token;
+        if(!currentUser) {
+            window.location.href = '/';
+        } else {
+            const user = JSON.parse(currentUser);   
+            token = user.accessToken;
+             }
+        // Submit the form with the token
+        fetch('https://api.hrpsi.com/api/v1/shared/upload-file', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('File upload result:', data);
+            if(data.code === 401) {
+                window.location.href = '/';
+            }
+            // Hide loader
+            document.getElementById('loaderOverlay').style.display = 'none';
+            // Optionally, handle the response (e.g., show a success message, refresh the file list, etc.)
+        })
+        .catch(error => {
+            
+            console.error('Error during file upload:', error);
+            // Hide loader
+            document.getElementById('loaderOverlay').style.display = 'none';
         });
-      }
+    }
 
       // If you want to also show loader on filter/sort form submission:
       const filterForm = document.querySelector('form[method="GET"]');
@@ -148,6 +186,22 @@
           document.getElementById('loaderOverlay').style.display = 'flex';
         });
       }
+
+      // Read user's email from local storage and display it
+      document.addEventListener('DOMContentLoaded', function() {
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (user && user.email) {
+            document.querySelector('.navbar .left h6').textContent = `Welcome, ${user.firstName} ${user.lastName}`;
+        } else {
+            window.location.href = '/';
+        }
+    });
+
+    // Handle logout
+    document.getElementById('logoutButton').addEventListener('click', function() {
+        localStorage.removeItem('user');
+        window.location.href = '/';
+    });
     </script>
 </body>
 </html>

@@ -1,11 +1,5 @@
-const bcrypt = require('bcrypt');
-
-// Hardcoded user info for demonstration.
-const DEMO_USER = {
-  email: 'admin@hrpsi.com',
-  // Password: 'password123', hashed using bcrypt for demo
-  passwordHash: '$2b$10$Zm9VMImBjjbN8IEUDrXdcOAIpl6tb5uyWk8THpEy9xHiNUpy9gW7C' 
-};
+const axios = require('axios');
+const { constants } = require('../constants');
 
 exports.getLoginPage = (req, res) => {
   // If user is already logged in, redirect to /files
@@ -18,16 +12,24 @@ exports.getLoginPage = (req, res) => {
 exports.loginUser = async (req, res) => {
   const { email, password } = req.body;
 
-  if (email === DEMO_USER.email) {
-    const match = await bcrypt.compare(password, DEMO_USER.passwordHash);
-    if (true) {
-      req.session.user = { email };
-      return res.redirect('/files');
-    }
-  }
+  try {
+    const response = await axios.post(`${constants.backendUrl}/auth/login`, {
+      email,
+      password,
+      deviceId:'1234',
+      languageIsoCode:"en"
+    });
 
-  // If not matched or email not found
-  return res.render('login', { error: 'Invalid credentials' });
+    if (response.data.success) {
+      req.session.user = response.data;
+      // return res.redirect('/files');
+    } else {
+      return res.render('login', { error: response.data.message });
+    }
+  } catch (error) {
+    console.error('Error during login:', error);
+    return res.render('login', { error: 'Login failed. Please try again.' });
+  }
 };
 
 exports.logoutUser = (req, res) => {

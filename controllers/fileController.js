@@ -60,6 +60,7 @@ exports.getDashboard = async (req, res) => {
       search,
       sort
     });
+    // res.render('dashboard');
   } catch (error) {
     console.error('Error listing files from S3:', error);
     res.status(500).send('Error listing files');
