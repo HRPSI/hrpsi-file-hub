@@ -283,10 +283,25 @@
         const filePreview = document.getElementById('filePreview');
 
         document.addEventListener('mousemove', function(e) {
-            imagePreview.style.top = e.pageY + 10 + 'px';
-            imagePreview.style.left = e.pageX + 10 + 'px';
-            filePreview.style.top = e.pageY + 10 + 'px';
-            filePreview.style.left = e.pageX + 10 + 'px';
+            const imagePreview = document.getElementById('imagePreview');
+            const filePreview = document.getElementById('filePreview');
+            const previewWidth = 300; // Adjust based on your max-width
+            const previewHeight = 300; // Adjust based on your max-height
+
+            let top = e.pageY + 10;
+            let left = e.pageX + 10;
+
+            if (top + previewHeight > window.innerHeight) {
+                top = e.pageY - previewHeight - 10;
+            }
+            if (left + previewWidth > window.innerWidth) {
+                left = e.pageX - previewWidth - 10;
+            }
+
+            imagePreview.style.top = top + 'px';
+            imagePreview.style.left = left + 'px';
+            filePreview.style.top = top + 'px';
+            filePreview.style.left = left + 'px';
         });
 
         document.getElementById('fileList').addEventListener('mouseover', function(e) {
