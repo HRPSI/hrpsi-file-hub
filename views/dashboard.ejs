@@ -97,7 +97,7 @@
 
             const user = JSON.parse(localStorage.getItem('user'));
             console.log(user);
-            fetch(`http://localhost:3000/api/v1/shared/media/list?page=${page}&limit=11&search=${search}`, {
+            fetch(`https://api.hrpsi.com/api/v1/shared/media/list?page=${page}&limit=11&search=${search}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -165,7 +165,7 @@
                 const user = JSON.parse(currentUser);   
                 token = user.accessToken;
             }
-            fetch('http://localhost:3000/api/v1/shared/upload-files', {
+            fetch('https://api.hrpsi.com/api/v1/shared/upload-files', {
                 method: 'POST',
                 body: formData,
                 headers: {
