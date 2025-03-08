@@ -18,7 +18,6 @@ body {
   justify-content: space-between;
   align-items: center;
   font-size: 15px;
-  /* ... other navbar styles */
 }
 
 .upload-button {
@@ -82,23 +81,6 @@ button {
     font-weight: bold;
 }
 
-/* .navbar {
-    display: flex;
-    justify-content: space-between;
-    background-color: #f2f2f2;
-    padding: 10px 20px;
-    align-items: center;
-} */
-
-/* .upload-button {
-    background-color: #0066cc;
-    color: white;
-    padding: 10px 15px;
-    cursor: pointer;
-    margin-right: 10px;
-    text-decoration: none;
-} */
-
 .table-container {
     width: 80%;
     margin: 20px auto;
@@ -125,6 +107,7 @@ th, td {
     align-items: center;
     gap: 10px;
 }
+
 .pagination-tabs {
     width: 80%;
     margin: 20px auto;
@@ -132,9 +115,9 @@ th, td {
     display: flex;
     justify-content: center;
     gap: 8px;
-  }
-  
-  .tab {
+}
+
+.tab {
     display: inline-block;
     padding: 6px 12px;
     text-decoration: none;
@@ -142,45 +125,39 @@ th, td {
     background-color: #f2f2f2;
     color: #007bb6;
     transition: background-color 0.2s ease-in-out;
-  }
-  
-  .tab:hover {
+}
+
+.tab:hover {
     background-color: #ddd;
-  }
-  
-  .tab.active {
+}
+
+.tab.active {
     background-color: #007bb6;
     color: #fff;
     cursor: default;
-  }
-  .right {
-    /* Remove or override if it conflicts with Bootstrap classes */
-  }
-  .filter-sort-container {
-    /* Remove or override if it conflicts with Bootstrap classes */
-  }
+}
 
-  .loader-overlay {
+.loader-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    display: flex;          /* so spinner is centered */
+    display: flex;
     justify-content: center;
     align-items: center;
     background-color: rgba(255, 255, 255, 0.7);
-    z-index: 9999;          /* topmost layer */
-    /* default to hidden; can also do display: none; inlined in HTML/JS */
-  }
+    z-index: 9999;
+    display: none; /* Initially hidden */
+}
 
-  .table-drop-zone {
+.table-drop-zone {
     border: 2px dashed #ccc;
     border-radius: 5px;
     position: relative;
-  }
-  
-  .table-drop-zone.drop-zone-hover {
+}
+
+.table-drop-zone.drop-zone-hover {
     border-color: #007bff;
     background-color: rgba(0, 123, 255, 0.05);
-  }
+}

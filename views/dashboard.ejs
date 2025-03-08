@@ -4,118 +4,78 @@
     <title>Dashboard</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        #searchInput, #file-upload + label {
+            width: 300px; /* Adjust width as needed */
+            height: 35px; /* Adjust height as needed */
+        }
+    </style>
 </head>
 <body>
     <div class="navbar">
         <div class="left">
             <h6></h6>
         </div>
-<!-- Wrap in a d-flex to align items horizontally; use spacing with ms-3 or me-3 as needed. -->
-<div class="d-flex align-items-center">
-    <a href="#" id="logoutButton" class="btn btn-danger">Logout</a>
-</div>
-
+        <div class="d-flex align-items-center">
+            <a href="#" id="logoutButton" class="btn btn-danger">Logout</a>
+        </div>
     </div>
-    <div class="filter-sort-container mb-3">
-        <form method="GET" action="/files" class="d-flex align-items-center">
-            <div class="me-2">
+    <div class="filter-sort-container mb-3 d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+            <div id="searchForm" class="d-flex align-items-center position-relative me-2">
                 <input 
                     type="text" 
                     class="form-control" 
                     name="search" 
-                    placeholder="Search by name" 
-                    value="<%= search %>"
+                    placeholder="Search by name"
+                    id="searchInput"
                 >
             </div>
-            <div class="me-2">
-                <select name="sort" class="form-select">
-                    <option value="desc" <%= sort === 'desc' ? 'selected' : '' %>>Newest First</option>
-                    <option value="asc" <%= sort === 'asc' ? 'selected' : '' %>>Oldest First</option>
-                </select>
+            <div class="me-2"> 
+                <button type="button" class="btn btn-primary" onclick="performSearch()">Search</button>
             </div>
-            <div> <button type="submit" class="btn btn-primary">Apply</button></div>
-           
             <div>
-                   <!-- New: Reset button to clear filters by redirecting to /files with no query params -->
-    <button 
-    type="button" 
-    class="btn btn-secondary ms-2"
-    onclick="window.location='/files';"
-  >
-    Reset
-  </button>
+                <label for="file-upload" class="btn btn-success mb-0">
+                    Upload
+                </label>
+                <input 
+                    id="file-upload" 
+                    type="file" 
+                    name="files" 
+                    multiple
+                    class="d-none" 
+                    onchange="uploadFiles()"
+                />
             </div>
-        </form>
-        <div class="me-3">
-            <label for="file-upload" class="btn btn-success mb-0">
-                Upload
-            </label>
-            <input 
-                id="file-upload" 
-                type="file" 
-                name="files" 
-                multiple
-                class="d-none" 
-                onchange="uploadFiles()"
-            />
         </div>
+        <div id="lastUpdate" class="text-end">Last Update: N/A</div>
     </div>
     
     <div id="dropZone" class="table-drop-zone table-responsive">
         <table class="table table-striped table-hover">
-    <div class="table-responsive">
-        <table class="table table-striped table-hover align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th>Name</th>
-                    <th>Created/Modified At</th>
-                    <!-- <th>Action</th> -->
-                </tr>
-            </thead>
-            <tbody>
-                <% if (files && files.length > 0) { %>
-                    <% files.forEach(file => { %>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle">
+                    <thead class="table-dark">
                         <tr>
-                            <td>
-                                <a href="/files/download/<%= encodeURIComponent(file.name) %>" class="text-decoration-none">
-                                    <%= file.name %>
-                                </a>
-                            </td>
-                            <td><%= new Date(file.lastModified).toLocaleString() %></td>
-                            <!-- <td>
-                                <a href="/files/download/<%= encodeURIComponent(file.name) %>" class="btn btn-primary btn-sm">
-                                  Download
-                                </a>
-                                <a 
-                                href="/files/delete/<%= encodeURIComponent(file.name) %>" 
-                                class="btn btn-danger btn-sm"
-                                onclick="return confirm('Are you sure you want to delete <%= file.name %>?');"
-                              >
-                                Delete
-                              </a>
-                              </td> -->
+                            <th id="fileCount" colspan="3">Total Files: 0</th>
                         </tr>
-                    <% }) %>
-                <% } else { %>
-                    <tr><td colspan="2" class="text-center">No files found</td></tr>
-                <% } %>
-            </tbody>
+                        <tr>
+                            <th>Name</th>
+                            <th>Created At</th>
+                            <th>Type</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fileList">
+                        <!-- File list will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
         </table>
     </div>
-</table>
-</div>
-
-    
 
     <!-- Pagination -->
-    <div class="pagination-tabs">
-        <% for(let i = 1; i <= totalPages; i++) { %>
-            <% if(i === currentPage) { %>
-                <span class="tab active"><%= i %></span>
-            <% } else { %>
-                <a class="tab" href="/files?page=<%= i %>&search=<%= search %>&sort=<%= sort %>"><%= i %></a>
-            <% } %>
-        <% } %>
+    <div class="pagination-tabs" id="pagination"></div>
+        <!-- Pagination logic will be handled by JavaScript -->
     </div>
 
     <div class="loader-overlay" id="loaderOverlay">
@@ -126,82 +86,157 @@
 
     <script src="/js/main.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-      // Show loader on page load, hide once content is fully loaded
-      document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('loaderOverlay').style.display = 'none';
-      });
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('loaderOverlay').style.display = 'none';
+            loadFiles(1); // Load files when the page is opened
+        });
 
-      // Handle file upload
-      function uploadFiles() {
-        const fileInput = document.getElementById('file-upload');
-        const files = fileInput.files;
-        const formData = new FormData();
+        function loadFiles(page, search = '') {
+            document.getElementById('loaderOverlay').style.display = 'flex';
 
-            formData.append('file', files[0]);
-        
+            const user = JSON.parse(localStorage.getItem('user'));
+            console.log(user);
+            fetch(`http://localhost:3000/api/v1/shared/media/list?page=${page}&limit=11&search=${search}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user.accessToken}`
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Files loaded:', data);
+                document.getElementById('loaderOverlay').style.display = 'none';
+                const fileList = document.getElementById('fileList');
+                fileList.innerHTML = '';
+                if (data.data.list && data.data.list.length > 0) {
+                    data.data.list.forEach(file => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td><a href="${file.url}" target="_blank">${file.name}</a></td>
+                            <td>${new Date(file.createdAt).toLocaleString()}</td>
+                            <td>${file.type}</td>
+                        `;
+                        fileList.appendChild(row);
+                    });
+                } else {
+                    fileList.innerHTML = '<tr><td colspan="3" class="text-center">No files found</td></tr>';
+                }
+                document.getElementById('fileCount').textContent = `Total Files: ${data.data.totalCount}`;
+                document.getElementById('lastUpdate').textContent = `Last Update: ${new Date().toLocaleString()}`;
+                const pagination = document.getElementById('pagination');
+                pagination.innerHTML = '';
+                const totalPages = Math.ceil(data.data.totalCount / 11);
+                for (let i = 1; i <= totalPages; i++) {
+                    const pageLink = document.createElement('a');
+                    pageLink.className = 'tab';
+                    pageLink.href = '#';
+                    pageLink.textContent = i;
+                    pageLink.addEventListener('click', function(event) {
+                        event.preventDefault();
+                        loadFiles(i, search);
+                    });
+                    pagination.appendChild(pageLink);
+                }
+            })
+            .catch(error => {
+                console.error('Error loading files:', error);
+                document.getElementById('loaderOverlay').style.display = 'none';
+            });
+        }
 
+        function uploadFiles() {
+            const fileInput = document.getElementById('file-upload');
+            const files = fileInput.files;
+            const formData = new FormData();
 
-        // Show loader
-        document.getElementById('loaderOverlay').style.display = 'flex';
-
-        const currentUser = localStorage.getItem('user');
-        let token;
-        if(!currentUser) {
-            window.location.href = '/';
-        } else {
-            const user = JSON.parse(currentUser);   
-            token = user.accessToken;
-             }
-        // Submit the form with the token
-        fetch('https://api.hrpsi.com/api/v1/shared/upload-file', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'Authorization': `Bearer ${token}`
+            for (let i = 0; i < files.length; i++) {
+                formData.append('files', files[i]);
             }
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('File upload result:', data);
-            if(data.code === 401) {
+
+            document.getElementById('loaderOverlay').style.display = 'flex';
+
+            const currentUser = localStorage.getItem('user');
+            let token;
+            if(!currentUser) {
+                window.location.href = '/';
+            } else {
+                const user = JSON.parse(currentUser);   
+                token = user.accessToken;
+            }
+            fetch('http://localhost:3000/api/v1/shared/upload-files', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('File upload result:', data);
+                if(data.code === 401) {
+                    window.location.href = '/';
+                }
+                document.getElementById('loaderOverlay').style.display = 'none';
+                const fileList = document.getElementById('fileList');
+                data.data.forEach(file => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><a href="${file.fileUrl}" target="_blank">${file.fileName}</a></td>
+                        <td>${new Date().toLocaleString()}</td>
+                        <td>${file.type.mime}</td>
+                    `;
+                    fileList.insertBefore(row, fileList.firstChild); // Add new files at the top
+                });
+            })
+            .catch(error => {
+                console.error('Error during file upload:', error);
+                document.getElementById('loaderOverlay').style.display = 'none';
+            });
+        }
+
+        function performSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const search = searchInput.value.trim();
+            loadFiles(1, search);
+        }
+
+        function clearSearch() {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.value = '';
+            performSearch(); // Trigger search when cleared
+        }
+
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const clearButton = document.getElementById('clearButton');
+            if (this.value) {
+                clearButton.style.display = 'block';
+            } else {
+                clearButton.style.display = 'none';
+                performSearch(); // Trigger search when input is cleared
+            }
+        });
+
+        document.getElementById('searchInput').addEventListener('input', function() {
+            if (!this.value.trim()) {
+                performSearch(); // Trigger search when input is cleared
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (user && user.email) {
+                document.querySelector('.navbar .left h6').textContent = `Welcome, ${user.firstName} ${user.lastName}`;
+            } else {
                 window.location.href = '/';
             }
-            // Hide loader
-            document.getElementById('loaderOverlay').style.display = 'none';
-            // Optionally, handle the response (e.g., show a success message, refresh the file list, etc.)
-        })
-        .catch(error => {
-            
-            console.error('Error during file upload:', error);
-            // Hide loader
-            document.getElementById('loaderOverlay').style.display = 'none';
         });
-    }
 
-      // If you want to also show loader on filter/sort form submission:
-      const filterForm = document.querySelector('form[method="GET"]');
-      if (filterForm) {
-        filterForm.addEventListener('submit', function() {
-          document.getElementById('loaderOverlay').style.display = 'flex';
-        });
-      }
-
-      // Read user's email from local storage and display it
-      document.addEventListener('DOMContentLoaded', function() {
-        const user = JSON.parse(localStorage.getItem('user'));
-        if (user && user.email) {
-            document.querySelector('.navbar .left h6').textContent = `Welcome, ${user.firstName} ${user.lastName}`;
-        } else {
+        document.getElementById('logoutButton').addEventListener('click', function() {
+            localStorage.removeItem('user');
             window.location.href = '/';
-        }
-    });
-
-    // Handle logout
-    document.getElementById('logoutButton').addEventListener('click', function() {
-        localStorage.removeItem('user');
-        window.location.href = '/';
-    });
+        });
     </script>
 </body>
 </html>
